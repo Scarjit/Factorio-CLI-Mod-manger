@@ -1,10 +1,10 @@
 use crate::helper::{get_all_mods, DepEq, Dependency, ModDown, ModMatch};
-use crate::json::mod_full::Release;
-use clap::Values;
+
+
 use prettytable::Table;
 use semver::Version;
-use std::fs::{read_to_string, File};
-use std::path::{Path, PathBuf};
+use std::fs::{File};
+use std::path::{Path};
 use std::{io, thread};
 
 pub fn install_user_interaction(mods_path: &Path, api_token: &str) {
@@ -124,7 +124,7 @@ pub fn install(mods_path: &Path, params: Vec<String>, api_token: &str, gui: bool
     }
 
     let mut threads = vec![];
-    for tid in 0..16 {
+    for _tid in 0..16 {
         let api_token_s = String::from(api_token);
         let path_s = String::from(mods_path.to_str().unwrap());
         let r1 = r.clone();
@@ -149,7 +149,7 @@ pub fn download_worker(r: crossbeam::crossbeam_channel::Receiver<ModDown>, api_t
                 if !Path::new(&file_path).exists() {
                     let down_url = format!("https://mods.factorio.com/{}{}", v.url, api_token);
                     println!("Downloading {} from {}", &v.file_name, &down_url);
-                    let mut resp_x = crate::helper::RQClient.get(&down_url).send();
+                    let resp_x = crate::helper::RQClient.get(&down_url).send();
                     match resp_x {
                         Ok(mut vv) => {
                             let mut out = File::create(file_path).unwrap();
