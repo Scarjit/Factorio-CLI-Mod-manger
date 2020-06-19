@@ -29,9 +29,9 @@ fn main() {
 
     let mp_r = format!("{}\\mods", serverfile_path.to_str().unwrap());
     let mods_path = Path::new(&mp_r);
-    let first_install = mods_path.exists();
+    let first_install = !mods_path.exists();
     if first_install {
-        std::fs::create_dir(&mods_path);
+        std::fs::create_dir(&mods_path).expect("Failed to create mod dir");
     }
 
     println!("Creating api-token");
@@ -46,7 +46,6 @@ fn main() {
 
     if first_install && (m.values_of("update").is_some() || m.values_of("verify").is_some()) {
         println!("First install detected, update & verify are not available");
-        return;
     } else {
         match m.subcommand_name() {
             Some("install") => {
@@ -58,7 +57,7 @@ fn main() {
                         Some(m) => {
                             install::install(
                                 &mods_path,
-                                m.map(|f| String::from(f)).collect(),
+                                m.map(String::from).collect(),
                                 &api_token,false
                             );
                         }

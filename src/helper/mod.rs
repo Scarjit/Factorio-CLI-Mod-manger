@@ -11,7 +11,7 @@ use std::path::Path;
 
 
 lazy_static! {
-    pub static ref RQClient: reqwest::blocking::Client = reqwest::blocking::Client::new();
+    pub static ref RQCLIENT: reqwest::blocking::Client = reqwest::blocking::Client::new();
 }
 
 pub fn parse_version_number(server_files_path: &Path) -> Version {
@@ -21,10 +21,10 @@ pub fn parse_version_number(server_files_path: &Path) -> Version {
             match serde_json::from_reader::<BufReader<File>, crate::json::player_data::PlayerData>(
                 BufReader::new(pfile),
             ) {
-                Ok(v) => unsafe {
+                Ok(v) => {
                     match Version::parse(&v.last_played_version.unwrap().game_version.unwrap()) {
                         Ok(v) => {
-                            return v;
+                            v
                         }
                         Err(e) => {
                             panic!("Could not parse game version: {}", e);
@@ -43,14 +43,14 @@ pub fn parse_version_number(server_files_path: &Path) -> Version {
 }
 
 pub fn login(username: &str, password: &str) -> String {
-    let res = RQClient
+    let res = RQCLIENT
         .post("https://auth.factorio.com/api-login")
         .query(&[("username", &username), ("password", &password)])
         .send()
         .unwrap()
         .text()
         .unwrap();
-    let token = String::from(res).replace("[","").replace("]","").replace("\"", "");
+    let token = res.replace("[","").replace("]","").replace("\"", "");
     return format!("?username={}&token={}", username, token);
 }
 
@@ -59,7 +59,7 @@ pub fn get_all_mods() -> bool {
     println!("Downloading mod list ...");
     unsafe {
         if FULL_LIST.is_none() {
-            let resp_x = RQClient
+            let resp_x = RQCLIENT
                 .get("https://mods.factorio.com/api/mods?page_size=max")
                 .send();
 
@@ -86,7 +86,7 @@ pub fn get_all_mods() -> bool {
             }
         }
     }
-    return false;
+    false
 }
 
 pub fn mod_exists(mod_name: &str) -> Option<String> {
@@ -98,7 +98,7 @@ pub fn mod_exists(mod_name: &str) -> Option<String> {
             return Some(String::from(&r.name));
         }
     }
-    return None;
+    None
 }
 
 pub struct ModMatch {
@@ -149,10 +149,10 @@ pub fn find_near_match(mod_name: &str) -> Vec<ModMatch> {
         }
 
         //Sort by downloads descending
-        return b.downloads.cmp(&a.downloads);
+        b.downloads.cmp(&a.downloads)
     });
 
-    return near_matches;
+    near_matches
 }
 
 #[derive(Debug)]
@@ -171,7 +171,7 @@ pub enum DepEq {
     Greater,
 }
 
-pub fn parse_deps(deps: &Vec<String>) -> Vec<Dependency> {
+pub fn parse_deps(deps: &[String]) -> Vec<Dependency> {
     let mut depvec: Vec<Dependency> = vec![];
     for dep in deps {
         let d_one = dep.chars().next().unwrap();
@@ -207,7 +207,7 @@ pub fn parse_deps(deps: &Vec<String>) -> Vec<Dependency> {
         depvec.push(d);
     }
 
-    return depvec;
+    depvec
 }
 
 #[derive(Debug, PartialEq, Ord, PartialOrd, Eq)]

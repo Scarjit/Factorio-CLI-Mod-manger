@@ -1,4 +1,4 @@
-use crate::helper::{get_all_mods, DepEq, Dependency, ModDown, ModMatch};
+use crate::helper::{DepEq, Dependency, ModDown};
 
 
 use prettytable::Table;
@@ -8,9 +8,8 @@ use std::path::{Path};
 use std::{io, thread};
 
 pub fn install_user_interaction(mods_path: &Path, api_token: &str) {
-    let abort = false;
     let mut to_install: Vec<String> = vec![];
-    while !abort {
+    loop {
         println!("Type mod to install. Insert 'q' to quit or 'i' to install selected.");
         let line: String = text_io::read!("{}\n");
 
@@ -18,12 +17,12 @@ pub fn install_user_interaction(mods_path: &Path, api_token: &str) {
             return;
         }
         if line == "i" {
-            install(mods_path, to_install.clone(), api_token, true);
+            install(mods_path, to_install, api_token, true);
             return;
         }
 
         let matches = crate::helper::find_near_match(&line);
-        if &matches.get(0).unwrap().levenshtein_distance == &0 {
+        if matches.get(0).unwrap().levenshtein_distance == 0 {
             let mn = String::from(&matches.get(0).unwrap().mod_name);
             let mt =&matches.get(0).unwrap().mod_title;
             if to_install.contains(&mn) {
@@ -42,8 +41,7 @@ pub fn install_user_interaction(mods_path: &Path, api_token: &str) {
                 "Downloads",
                 "Levenshtein distance"
             ]);
-            let mut i = 0;
-            for m in &matches {
+            for (i,m) in matches.iter().enumerate() {
                 table.add_row(row![
                     i,
                     m.mod_name,
@@ -51,7 +49,6 @@ pub fn install_user_interaction(mods_path: &Path, api_token: &str) {
                     m.downloads,
                     m.levenshtein_distance
                 ]);
-                i += 1;
             }
 
             table.printstd();
@@ -120,7 +117,7 @@ pub fn install(mods_path: &Path, params: Vec<String>, api_token: &str, gui: bool
     let (s,r) = crossbeam::crossbeam_channel::unbounded();
 
     for m in to_install {
-        s.send(m);
+        s.send(m).expect("Failed to send work to worker.");
     }
 
     let mut threads = vec![];
@@ -134,14 +131,14 @@ pub fn install(mods_path: &Path, params: Vec<String>, api_token: &str, gui: bool
     }
 
     for thread in threads {
-        thread.join();
+        thread.join().expect("Failed to join thread");
     }
 
     println!("Finished downloading !");
 }
 
 pub fn download_worker(r: crossbeam::crossbeam_channel::Receiver<ModDown>, api_token: String, mods_path: String){
-    while r.len() > 0 {
+    while !r.is_empty() {
         let md = r.recv();
         match md {
             Ok(v) => {
@@ -149,7 +146,7 @@ pub fn download_worker(r: crossbeam::crossbeam_channel::Receiver<ModDown>, api_t
                 if !Path::new(&file_path).exists() {
                     let down_url = format!("https://mods.factorio.com/{}{}", v.url, api_token);
                     println!("Downloading {} from {}", &v.file_name, &down_url);
-                    let resp_x = crate::helper::RQClient.get(&down_url).send();
+                    let resp_x = crate::helper::RQCLIENT.get(&down_url).send();
                     match resp_x {
                         Ok(mut vv) => {
                             let mut out = File::create(file_path).unwrap();
@@ -177,7 +174,7 @@ pub fn parse_mod(mod_name: String, api_token: &str, current_version: &Version, v
     if mod_name == "Base" || mod_name == "base" {
         return to_install;
     }
-    let resp_x = crate::helper::RQClient
+    let resp_x = crate::helper::RQCLIENT
         .get(&format!(
             "https://mods.factorio.com/api/mods/{}/full{}",
             mod_name, api_token
@@ -195,8 +192,7 @@ pub fn parse_mod(mod_name: String, api_token: &str, current_version: &Version, v
                             let mut x_release: Option<usize> = None;
                             let mut x_dep: Option<Vec<Dependency>> = None;
 
-                            let mut i = 0;
-                            for vvx in &vv {
+                            for (i,vvx) in vv.iter().enumerate() {
                                 //println!("Checking: {:#?}", &vvx);
                                 let release_factrio_version =
                                     Version::parse(&if vvx.info_json.factorio_version.len() == 4 {
@@ -263,7 +259,6 @@ pub fn parse_mod(mod_name: String, api_token: &str, current_version: &Version, v
                                         }
                                     }
                                 }
-                                i += 1;
                             }
 
                             if x_release == None {
@@ -298,7 +293,7 @@ pub fn parse_mod(mod_name: String, api_token: &str, current_version: &Version, v
         }
     }
 
-    return to_install;
+    to_install
 }
 
 pub fn parse_dep_cyclic(deps: Vec<Dependency>, api_token: &str, current_version: &Version) -> Vec<ModDown> {
@@ -310,5 +305,5 @@ pub fn parse_dep_cyclic(deps: Vec<Dependency>, api_token: &str, current_version:
         }
     }
 
-    return moddowns;
+    moddowns
 }

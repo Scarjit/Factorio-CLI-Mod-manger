@@ -30,7 +30,7 @@ prettytable-rs = "0.8.0"
 semver = "0.10.0"
 
 [build]
-rustflags = "-C target-cpu=native"
+rustflags = ["-C", "target-cpu=native"]
 
 [profile.release]
 opt-level = 3
