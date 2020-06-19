@@ -17,7 +17,7 @@ pub struct PlayerData {
     #[serde(rename = "editor-lua-snippets")]
     pub(crate) editor_lua_snippets: Option<Vec<EditorLuaSnippet>>,
     #[serde(rename = "last-played-version")]
-    pub(crate) last_played_version: Option<LastPlayedVersion>,
+    pub(crate) last_played_version: LastPlayedVersion,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -56,7 +56,7 @@ pub struct EditorLuaSnippet {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LastPlayedVersion {
-    pub(crate) game_version: Option<String>,
+    pub(crate) game_version: String,
     pub(crate) build_version: Option<i64>,
     pub(crate) build_mode: Option<String>,
     pub(crate) platform: Option<String>,

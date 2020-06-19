@@ -1,3 +1,4 @@
+#![allow(clippy::print_stdout, clippy::must_use_candidate, clippy::implicit_return, clippy::expect_used)]
 
 use lazy_static::lazy_static;
 use semver::{Version};
@@ -22,7 +23,7 @@ pub fn parse_version_number(server_files_path: &Path) -> Version {
                 BufReader::new(pfile),
             ) {
                 Ok(v) => {
-                    match Version::parse(&v.last_played_version.unwrap().game_version.unwrap()) {
+                    match Version::parse(&v.last_played_version.game_version) {
                         Ok(v) => {
                             v
                         }
@@ -47,9 +48,9 @@ pub fn login(username: &str, password: &str) -> String {
         .post("https://auth.factorio.com/api-login")
         .query(&[("username", &username), ("password", &password)])
         .send()
-        .unwrap()
+        .expect("Couldn't connect to factorio auth server")
         .text()
-        .unwrap();
+        .expect("Couldn't get answer text for request");
     let token = res.replace("[","").replace("]","").replace("\"", "");
     return format!("?username={}&token={}", username, token);
 }
@@ -66,7 +67,7 @@ pub fn get_all_mods() -> bool {
             match resp_x {
                 Ok(v) => {
                     if v.status().is_success() {
-                        let resp = v.text().unwrap();
+                        let resp = v.text().expect("Couldn't get answer text for request");
                         match serde_json::from_str::<crate::json::mod_list::FullList>(&resp) {
                             Ok(v) => {
                                 FULL_LIST = Some(v);
@@ -91,7 +92,7 @@ pub fn get_all_mods() -> bool {
 
 pub fn mod_exists(mod_name: &str) -> Option<String> {
     let list = &unsafe { crate::helper::FULL_LIST.as_ref() }
-        .unwrap()
+        .expect("Couldn't get modlist")
         .results;
     for r in list {
         if r.name == mod_name || r.title == mod_name {
@@ -110,7 +111,7 @@ pub struct ModMatch {
 
 pub fn find_near_match(mod_name: &str) -> Vec<ModMatch> {
     let list = &unsafe { crate::helper::FULL_LIST.as_ref() }
-        .unwrap()
+        .expect("Couldn't get modlist")
         .results;
     let mut near_matches: Vec<ModMatch> = Vec::new();
     for r in list {
@@ -133,6 +134,7 @@ pub fn find_near_match(mod_name: &str) -> Vec<ModMatch> {
         }
     }
 
+    #[allow(clippy::else_if_without_else)]
     near_matches.sort_by(|a, b| {
         if a.levenshtein_distance <= 2 && b.levenshtein_distance <= 2 {
             if a.levenshtein_distance != b.levenshtein_distance {
@@ -174,7 +176,7 @@ pub enum DepEq {
 pub fn parse_deps(deps: &[String]) -> Vec<Dependency> {
     let mut depvec: Vec<Dependency> = vec![];
     for dep in deps {
-        let d_one = dep.chars().next().unwrap();
+        let d_one = dep.chars().next().expect("Couldn't get dependency type character from string");
         let mut d = Dependency {
             name: "".to_string(),
             version: Version::new(0, 0, 0),
@@ -186,16 +188,16 @@ pub fn parse_deps(deps: &[String]) -> Vec<Dependency> {
         }
 
         let splits: Vec<&str> = dep.split(' ').collect();
-        d.name = String::from(splits[0]);
-        let mut v = String::from(splits[2]);
+        d.name = String::from(*splits.get(0).expect("Dependency has no name"));
+        let mut v = String::from(*splits.get(2).expect("Dependency has required version"));
         if v.len() == 4 {
             v += ".0";
         }
-        d.version = Version::parse(&v).unwrap();
+        d.version = Version::parse(&v).expect("Couldn't parse version");
 
-        let eq_op = splits[1];
+        let eq_op = splits.get(1).expect("Couldn't get EQ operator");
 
-        d.eq = match eq_op {
+        d.eq = match *eq_op {
             "<" => DepEq::Smaller,
             "<=" => DepEq::SmallerEqual,
             "=" => DepEq::Equal,
