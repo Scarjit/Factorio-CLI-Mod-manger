@@ -1,5 +1,7 @@
 # Factorio CLI Mod Manager
 
+[![Coverage Status](https://coveralls.io/repos/github/Scarjit/Factorio-CLI-Mod-manger/badge.svg?branch=master)](https://coveralls.io/github/Scarjit/Factorio-CLI-Mod-manger?branch=master)
+[![Build Status](https://travis-ci.org/Scarjit/Factorio-CLI-Mod-manger.svg?branch=master)](https://travis-ci.org/Scarjit/Factorio-CLI-Mod-manger)
 ## Getting started
  - Install [rust & cargo](https://www.rust-lang.org/learn/get-started)
  - Use rustup to download a newish nightly version (tested on ``nightly-2020-06-18-x86_64-pc-windows-gnu``)
