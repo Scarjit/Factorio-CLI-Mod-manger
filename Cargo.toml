@@ -1,0 +1,30 @@
+[package]
+name = "factorio_mod_manager"
+version = "0.1.0"
+authors = ["Scarjit <scarjit@aol.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies.clap]
+version = "3.0.0-beta.1"
+features = ["yaml"]
+
+[dependencies.serde]
+version = "1.0.112"
+features = ["derive"]
+
+[dependencies.serde_json]
+version = "1.0.55"
+
+[dependencies.reqwest]
+version = "0.10.6"
+features = ["blocking"]
+
+[dependencies]
+crossbeam = "0.7.3"
+lazy_static = "1.4.0"
+levenshtein = "1.0.4"
+text_io = "0.1.8"
+prettytable-rs = "0.8.0"
+semver = "0.10.0"

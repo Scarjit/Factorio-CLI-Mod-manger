@@ -1,0 +1,48 @@
+name: FactorioCLIModManager
+version: "0.1.0"
+about: Updates and manages mods on an factorio install using cli
+author: Ferdinand L. <ferdinand.linnenberg@aol.com>
+
+args:
+  - serverpath:
+      help: Path to serverfiles
+      short: s
+      long: path
+      takes_value: true
+  - username:
+      help: Factorio username
+      short: u
+      long: user
+      takes_value: true
+      required: true
+  - password:
+      help: Factorio password
+      short: p
+      long: pass
+      takes_value: true
+      required: true
+
+subcommands:
+  - install:
+      help: Installs new mods
+      short: i
+      conflicts_with:
+        - update
+      args:
+        - mod:
+            short: m
+            multiple: true
+
+  - update:
+      help: Updates mod or all mods (default)
+      short: u
+      conflicts_with:
+        - install
+      args:
+        - all:
+            help: Updates all mods
+            short: a
+        - mod:
+            help: Update specified mods
+            short: m
+            multiple: true

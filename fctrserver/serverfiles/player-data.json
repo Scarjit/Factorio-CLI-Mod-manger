@@ -1,0 +1,89 @@
+
+{
+  "available-campaign-levels": 
+  {
+    "npe": 
+    {
+      "level-01": "hard"
+    },
+    "tight-spot": 
+    {
+      "level-01": "hard"
+    },
+    "transport-belt-madness": 
+    {
+      "level-01": "hard"
+    },
+    "tutorial": 
+    {
+      "level-01": "hard"
+    }
+  },
+  "tutorials": 
+  {
+    "stack-transfers": 
+    {
+      "status": "not-suggested-yet",
+      "count": 0
+    },
+    "logistic-system-basic": 
+    {
+      "status": "not-suggested-yet"
+    },
+    "construction-robots": 
+    {
+      "status": "not-suggested-yet"
+    },
+    "trains-basics": 
+    {
+      "status": "not-suggested-yet"
+    },
+    "trains-ghost-rail-planner": 
+    {
+      "status": "not-suggested-yet"
+    },
+    "trains-stations": 
+    {
+      "status": "not-suggested-yet"
+    },
+    "trains-basic-signals": 
+    {
+      "status": "not-suggested-yet"
+    },
+    "trains-advanced-signals": 
+    {
+      "status": "not-suggested-yet"
+    }
+  },
+  "service-username": "",
+  "service-token": "",
+  "last-used-filters": 
+  {
+    "players": "any",
+    "password": "any",
+    "mods": "any",
+    "friends": "any"
+  },
+  "column-ordering": 
+  {
+    "public-index": "name",
+    "public-ascending": true,
+    "lan-index": "name",
+    "lan-ascending": true
+  },
+  "editor-lua-snippets": 
+  [
+    
+    {
+      "name": "Example (Turn trees into biters)",
+      "code": "local surface = game.player.surface\nlocal entities = surface.find_entities_filtered{area = area, type = 'tree'}\nfor k, tree in pairs(entities) do\n  local position = tree.position\n  tree.destroy()\n  surface.create_entity{name = 'small-biter', position = position}\nend"
+    }
+  ],
+  "last-played-version": 
+  {
+    "game_version": "0.18.32",
+    "build_version": 52799,
+    "build_mode": "headless",
+    "platform": "linux64"
+  }
+}
