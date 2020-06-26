@@ -43,7 +43,7 @@ Parsed dependency graph:
 +-----------------------+--------------------------------------------------+
 Enter 'd' to start downloading, else aborting
 d
-Downloading Flare Stack_2.2.6.zip from https://mods.factorio.com//download/Flare%20Stack/5e81d69b97ca9c000c97e815?username=Scarjit&token=2285c9c299a44878d1e45502e4b964
+Downloading Flare Stack_2.2.6.zip from https://mods.factorio.com//download/Flare%20Stack/5e81d69b97ca9c000c97e815?username=Scarjit&token=XXXXXXXXXXXXXXXXXXXXXXXXXX
 Finished downloading Flare Stack_2.2.6.zip !
 Finished downloading !
 ```
